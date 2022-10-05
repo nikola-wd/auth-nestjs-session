@@ -1,4 +1,15 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
+
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
 import { AuthService } from './auth.service';
 import {
@@ -13,21 +24,30 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('local/register')
+  @HttpCode(HttpStatus.CREATED)
   registerLocal(@Body() registerUserDto: RegisterUserDto): Promise<Tokens> {
     return this.authService.registerLocal(registerUserDto);
   }
 
   @Post('local/login')
+  @HttpCode(HttpStatus.OK)
   signinLocal(@Body() loginUserDto: LoginUserDto): Promise<Tokens> {
     return this.authService.signinLocal(loginUserDto);
   }
 
-  @Post('logout')
-  logout() {
-    this.authService.logout();
+  // TODO: move 'jwt and jet-refresh' to constants
+  @UseGuards(AuthGuard('jwt'))
+  @Post('local/logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Req() req: Request) {
+    const user = req.user;
+    // TODO: Implment
+    this.authService.logout(user['id']);
   }
 
+  @UseGuards(AuthGuard('jwt-refresh'))
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   refreshTokens() {
     return this.authService.refreshTokens();
   }
