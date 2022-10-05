@@ -5,13 +5,12 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
-  Req,
 } from '@nestjs/common';
-import { Request } from 'express';
 
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
 import { AuthService } from './auth.service';
-import { AtGuard, RtGuard } from './common/guards';
+import { GetCurrentUser, GetCurrentUserId, Public } from './common/decorators';
+import { RtGuard } from './common/guards';
 import {
   RegisterUserDto,
   PasswordResetLinkRequestDto,
@@ -23,34 +22,36 @@ import { Tokens } from './types';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('local/register')
+  @Public()
+  @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
   registerLocal(@Body() registerUserDto: RegisterUserDto): Promise<Tokens> {
     return this.authService.registerLocal(registerUserDto);
   }
 
-  @Post('local/login')
+  @Public()
+  @Post('local/signin')
   @HttpCode(HttpStatus.OK)
   signinLocal(@Body() loginUserDto: LoginUserDto): Promise<Tokens> {
     return this.authService.signinLocal(loginUserDto);
   }
 
   // TODO: move 'jwt and jet-refresh' to constants
-  @UseGuards(AtGuard)
   @Post('local/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Req() req: Request) {
-    const user = req.user;
+  logout(@GetCurrentUserId() userId: number) {
     // TODO: Implment
-    this.authService.logout(user['id']);
+    this.authService.logout(userId);
   }
 
   @UseGuards(RtGuard)
   @Post('local/refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(@Req() req: Request) {
-    const user = req.user;
-    return this.authService.refreshTokens(user['sub'], user['refreshToken']);
+  refreshTokens(
+    @GetCurrentUserId() userId: number,
+    @GetCurrentUser('refreshToken') refreshToken: string,
+  ) {
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 
   @Post('request-password-reset-link')
