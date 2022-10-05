@@ -1,5 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
+import { AuthService } from './auth.service';
 import {
   RegisterUserDto,
   PasswordResetLinkRequestDto,
@@ -8,21 +9,37 @@ import {
 
 @Controller(`${ApiPrefix.V1}/auth`)
 export class AuthController {
-  @Post('register')
-  registerUser(@Body() registerUserDto: RegisterUserDto) {
+  constructor(private authService: AuthService) {}
+
+  @Post('local/register')
+  registerLocal(@Body() registerUserDto: RegisterUserDto) {
+    this.authService.registerLocal();
+
     return {
       // TODO: create service and write logic
       ...registerUserDto,
     };
   }
 
-  @Post('login')
-  loginUser(@Body() loginUserDto: LoginUserDto) {
+  @Post('local/login')
+  signinLocal(@Body() loginUserDto: LoginUserDto) {
+    this.authService.signinLocal();
+
     // TODO: create service and write logic
 
     return {
       ...loginUserDto,
     };
+  }
+
+  @Post('logout')
+  logout() {
+    this.authService.logout();
+  }
+
+  @Post('refresh')
+  refreshTokens() {
+    this.authService.refreshTokens();
   }
 
   @Post('request-password-reset-link')
