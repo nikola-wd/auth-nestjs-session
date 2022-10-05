@@ -16,17 +16,12 @@ export class AuthController {
   async registerLocal(
     @Body() registerUserDto: RegisterUserDto,
   ): Promise<Tokens> {
-    await this.authService.registerLocal(registerUserDto);
-
-    return {
-      // TODO: create service and write logic
-      ...registerUserDto,
-    };
+    return await this.authService.registerLocal(registerUserDto);
   }
 
   @Post('local/login')
   signinLocal(@Body() loginUserDto: LoginUserDto) {
-    this.authService.signinLocal();
+    this.authService.signinLocal(loginUserDto);
 
     // TODO: create service and write logic
 
