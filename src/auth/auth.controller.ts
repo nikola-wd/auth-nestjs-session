@@ -13,21 +13,13 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('local/register')
-  async registerLocal(
-    @Body() registerUserDto: RegisterUserDto,
-  ): Promise<Tokens> {
-    return await this.authService.registerLocal(registerUserDto);
+  registerLocal(@Body() registerUserDto: RegisterUserDto): Promise<Tokens> {
+    return this.authService.registerLocal(registerUserDto);
   }
 
   @Post('local/login')
-  signinLocal(@Body() loginUserDto: LoginUserDto) {
-    this.authService.signinLocal(loginUserDto);
-
-    // TODO: create service and write logic
-
-    return {
-      ...loginUserDto,
-    };
+  signinLocal(@Body() loginUserDto: LoginUserDto): Promise<Tokens> {
+    return this.authService.signinLocal(loginUserDto);
   }
 
   @Post('logout')
@@ -37,7 +29,7 @@ export class AuthController {
 
   @Post('refresh')
   refreshTokens() {
-    this.authService.refreshTokens();
+    return this.authService.refreshTokens();
   }
 
   @Post('request-password-reset-link')
