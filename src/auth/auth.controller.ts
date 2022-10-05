@@ -7,11 +7,11 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
 import { AuthService } from './auth.service';
+import { AtGuard, RtGuard } from './common/guards';
 import {
   RegisterUserDto,
   PasswordResetLinkRequestDto,
@@ -36,7 +36,7 @@ export class AuthController {
   }
 
   // TODO: move 'jwt and jet-refresh' to constants
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AtGuard)
   @Post('local/logout')
   @HttpCode(HttpStatus.OK)
   logout(@Req() req: Request) {
@@ -45,7 +45,7 @@ export class AuthController {
     this.authService.logout(user['id']);
   }
 
-  @UseGuards(AuthGuard('jwt-refresh'))
+  @UseGuards(RtGuard)
   @Post('local/refresh')
   @HttpCode(HttpStatus.OK)
   refreshTokens(@Req() req: Request) {
