@@ -9,8 +9,8 @@ import {
 
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
 import { AuthService } from './auth.service';
-import { GetCurrentUser, GetCurrentUserId, Public } from './common/decorators';
-import { RtGuard } from './common/guards';
+import { GetCurrentUser, GetCurrentUserId, Public } from '../common/decorators';
+import { RtGuard } from '../common/guards';
 import {
   RegisterUserDto,
   PasswordResetLinkRequestDto,
@@ -44,6 +44,7 @@ export class AuthController {
     this.authService.logout(userId);
   }
 
+  @Public()
   @UseGuards(RtGuard)
   @Post('local/refresh')
   @HttpCode(HttpStatus.OK)
