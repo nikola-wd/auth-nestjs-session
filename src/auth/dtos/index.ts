@@ -28,3 +28,9 @@ export class RegisterUserDto {
   })
   password: string;
 }
+
+export class PasswordResetLinkRequestDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+}
