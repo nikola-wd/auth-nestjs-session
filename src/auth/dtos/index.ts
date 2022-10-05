@@ -29,6 +29,19 @@ export class RegisterUserDto {
   password: string;
 }
 
+export class LoginUserDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @Matches(REGEXSPS.Password, {
+    message:
+      'The password must be in this format: 6 - 16 characters; Minimum 1 of each: uppercase, lowercase, number, special character',
+  })
+  password: string;
+}
+
 export class PasswordResetLinkRequestDto {
   @IsNotEmpty()
   @IsEmail()
