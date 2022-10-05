@@ -6,14 +6,17 @@ import {
   PasswordResetLinkRequestDto,
   LoginUserDto,
 } from './dtos';
+import { Tokens } from './types';
 
 @Controller(`${ApiPrefix.V1}/auth`)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('local/register')
-  registerLocal(@Body() registerUserDto: RegisterUserDto) {
-    this.authService.registerLocal();
+  async registerLocal(
+    @Body() registerUserDto: RegisterUserDto,
+  ): Promise<Tokens> {
+    await this.authService.registerLocal(registerUserDto);
 
     return {
       // TODO: create service and write logic
