@@ -11,12 +11,15 @@ export class AuthController {
   @Post('register')
   registerUser(@Body() registerUserDto: RegisterUserDto) {
     return {
+      // TODO: create service and write logic
       ...registerUserDto,
     };
   }
 
   @Post('login')
   loginUser(@Body() loginUserDto: LoginUserDto) {
+    // TODO: create service and write logic
+
     return {
       ...loginUserDto,
     };
@@ -26,6 +29,8 @@ export class AuthController {
   requestPasswordResetLink(
     @Body() passwordResetLinkRequest: PasswordResetLinkRequestDto,
   ) {
+    // TODO: create service and write logic (connect to a mailing service)
+
     return {
       ...passwordResetLinkRequest,
     };
