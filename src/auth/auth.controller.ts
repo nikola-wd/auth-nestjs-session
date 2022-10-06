@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
@@ -17,6 +18,8 @@ import {
   LoginUserDto,
 } from './dtos';
 import { Tokens } from './types';
+import { Response } from 'express';
+import { JwtMaxAge } from 'src/utils/enums/JwtMaxAge';
 
 @Controller(`${ApiPrefix.V1}/auth`)
 export class AuthController {
@@ -25,8 +28,31 @@ export class AuthController {
   @Public()
   @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
-  registerLocal(@Body() registerUserDto: RegisterUserDto): Promise<Tokens> {
-    return this.authService.registerLocal(registerUserDto);
+  async registerLocal(
+    @Body() registerUserDto: RegisterUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Partial<Tokens>> {
+    const tokens = await this.authService.registerLocal(registerUserDto);
+    res.cookie('jwt', tokens.refresh_token, {
+      httpOnly: true,
+      // TODO: Maybe 1000 is not needed if it's in seconds and not in ms
+      maxAge: JwtMaxAge.Refresh * 1000,
+      // domain: process.env.FRONTEND_DOMAIN,
+    });
+
+    return {
+      access_token: tokens.access_token,
+    };
+
+    // const { access_token, refresh_token } = await tokens;
+
+    // console.log('ACCESS_TOKEN: ', access_token);
+
+    // res.set('Authorization', 'Bearer ' + refresh_token);
+
+    // return {
+    //   access_token,
+    // };
   }
 
   @Public()

@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginUserDto, RegisterUserDto } from './dtos';
 import { JwtService } from '@nestjs/jwt';
 import { Tokens } from './types';
+import { JwtMaxAge } from 'src/utils/enums/JwtMaxAge';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
 
   // TODO: Check if user with provided email or username already exists
 
+  // Role may be added here
   async getTokens(
     userId: number,
     email: string,
@@ -30,9 +32,8 @@ export class AuthService {
           username,
         },
         {
-          // TODO: Move to conf
-          secret: 'at-secret',
-          expiresIn: 60 * 15,
+          secret: process.env.ACCESS_TOKEN_SECRET,
+          expiresIn: JwtMaxAge.Access,
         },
       ),
       this.jwtService.signAsync(
@@ -42,8 +43,8 @@ export class AuthService {
           username,
         },
         {
-          secret: 'rt-secret',
-          expiresIn: 60 * 60 * 24 * 7,
+          secret: process.env.REFRESH_TOKEN_SECRET,
+          expiresIn: JwtMaxAge.Refresh,
         },
       ),
     ]);
@@ -55,8 +56,10 @@ export class AuthService {
   }
 
   async registerLocal(dto: RegisterUserDto): Promise<Tokens> {
+    // Hash the password
     const hash = await this.hashData(dto.password);
 
+    // Create user (if email or username already exist, throw Exreption)
     const newUser = await this.prisma.user.create({
       data: {
         email: dto.email,
@@ -67,12 +70,17 @@ export class AuthService {
       },
     });
 
+    // Generate tokens
     const tokens = await this.getTokens(
       newUser.id,
       newUser.email,
       newUser.username,
     );
     await this.updateRtHash(newUser.id, tokens.refresh_token);
+
+    // TODO: Store refresh into http only cookie
+    // and return access token that should be saved in memory
+    // Should return only refresh_token and set a http cookie with the access_token
     return tokens;
   }
 
@@ -120,6 +128,7 @@ export class AuthService {
     });
   }
 
+  // TODO: don't return access_token, store it to http only cookie instead (do the same in register and signin), return only refresh token
   async refreshTokens(userId: number, rt: string) {
     const user = await this.prisma.user.findUnique({
       where: {
