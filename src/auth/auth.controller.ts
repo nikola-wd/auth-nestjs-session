@@ -64,12 +64,16 @@ export class AuthController {
     };
   }
 
+  // TODO: should clear cookie as well
+  // res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
+  // and send correct status: 204?;
   @Post('local/logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUserId() userId: number) {
     this.authService.logout(userId);
   }
 
+  // TODO: Test tokens with less time to verify they expire
   @Public()
   @UseGuards(RtGuard)
   @Post('local/refresh')
@@ -78,6 +82,7 @@ export class AuthController {
     @GetCurrentUserId() userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ) {
+    // TODO: store refresh in cookie and return only access
     return this.authService.refreshTokens(userId, refreshToken);
   }
 
