@@ -37,36 +37,36 @@ export class AuthController {
       httpOnly: true,
       // TODO: Maybe 1000 is not needed if it's in seconds and not in ms
       maxAge: JwtMaxAge.Refresh * 1000,
-      // domain: process.env.FRONTEND_DOMAIN,
     });
 
     return {
       access_token: tokens.access_token,
     };
-
-    // const { access_token, refresh_token } = await tokens;
-
-    // console.log('ACCESS_TOKEN: ', access_token);
-
-    // res.set('Authorization', 'Bearer ' + refresh_token);
-
-    // return {
-    //   access_token,
-    // };
   }
 
   @Public()
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
-  signinLocal(@Body() loginUserDto: LoginUserDto): Promise<Tokens> {
-    return this.authService.signinLocal(loginUserDto);
+  async signinLocal(
+    @Body() loginUserDto: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Partial<Tokens>> {
+    const tokens = await this.authService.signinLocal(loginUserDto);
+    // TODO: Maybe create a helper to store a cookie
+    res.cookie('jwt', tokens.refresh_token, {
+      httpOnly: true,
+      // TODO: Maybe 1000 is not needed if it's in seconds and not in ms
+      maxAge: JwtMaxAge.Refresh * 1000,
+    });
+
+    return {
+      access_token: tokens.access_token,
+    };
   }
 
-  // TODO: move 'jwt and jet-refresh' to constants
   @Post('local/logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUserId() userId: number) {
-    // TODO: Implment
     this.authService.logout(userId);
   }
 
