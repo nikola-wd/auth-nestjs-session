@@ -5,3 +5,5 @@ export class RtGuard extends AuthGuard('jwt-refresh') {
     super();
   }
 }
+
+// TODO: Test if this excepts cookie or Bearer authorization, Transform to http cookie if it accepts bearer

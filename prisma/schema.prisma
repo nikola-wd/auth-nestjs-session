@@ -21,6 +21,8 @@ model User {
   lastName  String
   hash      String
   hashRt    String?
+  // TODO: Remove this. Here only for testing
+  posts     Post[]
 
   @@map("users")
 }
@@ -31,5 +33,22 @@ model User {
 // npx prisma studio 
 // opens prisma db explorer web app
 
-// npx prisma db push
+//  
 // to update the db 
+
+// ________________________________________________
+
+// TODO: This is for testing only and should be removed
+model Post {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title   String
+  slug    String @unique
+  content String
+  userId  Int
+  user    User   @relation(fields: [userId], references: [id])
+
+  @@map("posts")
+}
