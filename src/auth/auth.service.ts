@@ -115,6 +115,9 @@ export class AuthService {
   }
 
   async logout(userId: number) {
+    console.log('Logging outttt');
+    console.log(userId);
+
     await this.prisma.user.updateMany({
       where: {
         id: userId,
@@ -138,6 +141,8 @@ export class AuthService {
 
     if (!user || !user.hashRt) throw new ForbiddenException('Access Denied');
 
+    // TODO: Maybe rt should not be hashed, it should compare with jwt instead
+    /// jwt.compare
     const rtMatches = await bcrypt.compare(rt, user.hashRt);
 
     if (!rtMatches) throw new ForbiddenException('Access Denied');

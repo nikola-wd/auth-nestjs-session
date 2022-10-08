@@ -6,6 +6,7 @@ import {
   HttpStatus,
   UseGuards,
   Res,
+  Get,
 } from '@nestjs/common';
 
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
@@ -44,6 +45,7 @@ export class AuthController {
     };
   }
 
+  // TODO: Disable double login if the request is being sent with access_token in headers or user hashRT already exist
   @Public()
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
@@ -67,13 +69,16 @@ export class AuthController {
   // TODO: should clear cookie as well
   // res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
   // and send correct status: 204?;
-  @Post('local/logout')
+
+  // It expects: authorization: Bearer access_token (check for Authorization and authorization)
+  @Get('local/logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUserId() userId: number) {
     this.authService.logout(userId);
   }
 
   // TODO: Test tokens with less time to verify they expire
+  // TODO: Make this route Get()
   @Public()
   @UseGuards(RtGuard)
   @Post('local/refresh')
