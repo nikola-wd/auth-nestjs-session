@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 // TODO: Test and maybe remove alowed domains
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
 
   // app.use(cookieParser(process.env.REFRESH_TOKEN_SECRET));
   // app.use(cookieParser());

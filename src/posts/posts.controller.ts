@@ -1,6 +1,6 @@
 import { Controller, HttpCode, HttpStatus, Get, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { Public } from 'src/common/decorators';
+import { GetCurrentUserId, Public } from 'src/common/decorators';
 import { Cookies } from 'src/common/decorators/cookies.decorator';
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
 import { PostsService } from './posts.service';
@@ -16,14 +16,23 @@ export class PostsController {
     return this.postsService.getAllPosts();
   }
 
-  // TODO: Remove this route and its service when done testing
-  @Get('test-cookie')
-  testCookie(@Req() req: Request, @Cookies() cookies: any) {
-    console.log(
-      '************************Cookie jwt******************************: ',
-      cookies,
-    );
+  // getPostsByUserID(@GetCurrentUserId() userId: number) {
+  //   console.log('___________________getPostsByUserID: userID: ', userId);
 
-    return ['test 1', 'test 2'];
+  //   return ['yooo'];
+  //   return {
+  //     posts: [],
+  //     userId,
+  //   };
+  // }
+
+  @Get('yo')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  getPostsById(@Req() req: Request) {
+    console.log('YOOOOOOOOOOOOOOOOOOOOOOOO');
+    console.log(req);
+
+    return ['yoooo'];
   }
 }
