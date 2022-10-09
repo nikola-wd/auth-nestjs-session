@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -22,8 +22,26 @@ export class PostsService {
     return posts;
   }
 
-  getPostsByUserId(userId: number) {
-    const postsByUserId = this.prisma.post.findMany({
+  async getSinglePostBySlug(slug: string) {
+    const post = await this.prisma.post.findUnique({
+      where: {
+        slug,
+      },
+      select: {
+        createdAt: true,
+        updatedAt: true,
+        slug: true,
+        title: true,
+        content: true,
+      },
+    });
+
+    if (!post) throw new NotFoundException();
+    return post;
+  }
+
+  async getPostsByUserId(userId: number) {
+    const postsByUserId = await this.prisma.post.findMany({
       where: {
         user: {
           id: userId,
