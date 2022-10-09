@@ -19,5 +19,5 @@
     "noFallthroughCasesInSwitch": false
   },
   "include": ["src"],
-  "exclude": ["client", "node_modules", "dist"]
+  "exclude": ["dist/client", "node_modules", "dist"]
 }
