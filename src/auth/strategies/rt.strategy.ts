@@ -1,25 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Request } from 'express';
+import { Request, Request as RequestType } from 'express';
 
+// TODO: Maybe we need to check if token is valid and compare to the DB one here
 @Injectable()
 export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      // TODO: maybe move to constants
+      ignoreExpiration: false,
       secretOrKey: process.env.REFRESH_TOKEN_SECRET,
-      passReqToCallback: true,
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          console.log(
+            '_________________________RT STRATEGY______________',
+            request,
+          );
+
+          const token = request?.cookies['jwt'];
+
+          console.log('token________________', token);
+          console.log('COOKIES: ', request?.cookies);
+
+          if (!token) {
+            return null;
+          }
+          return token;
+        },
+      ]),
     });
   }
 
-  validate(req: Request, payload: any) {
-    const refreshToken = req.get('authorization').replace('Bearer', '').trim();
-    return {
-      ...payload,
-      refreshToken,
-    };
+  async validate(payload: any) {
+    console.log('PATYLOAD:>>>>', payload);
+
+    if (payload === null) {
+      throw new UnauthorizedException();
+    }
+    return payload;
   }
 }

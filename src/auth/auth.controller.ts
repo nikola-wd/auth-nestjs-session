@@ -7,11 +7,12 @@ import {
   UseGuards,
   Res,
   Get,
+  Req,
 } from '@nestjs/common';
 
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
 import { AuthService } from './auth.service';
-import { GetCurrentUser, GetCurrentUserId, Public } from '../common/decorators';
+import { GetCurrentUserId, Public } from '../common/decorators';
 import { RtGuard } from '../common/guards';
 import {
   RegisterUserDto,
@@ -19,8 +20,22 @@ import {
   LoginUserDto,
 } from './dtos';
 import { Tokens } from './types';
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import { JwtMaxAge } from 'src/utils/enums/JwtMaxAge';
+import { Cookies } from 'src/common/decorators/cookies.decorator';
+
+const HTTP_ONLY_COOKIE_CONF: CookieOptions = {
+  // TODO: Maybe 1000 is not needed if it's in seconds and not in ms
+  maxAge: JwtMaxAge.Refresh * 1000,
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none',
+  // signed: true,
+  // TODO: Move to .env
+  // domain: 'http://localhost:3000',
+  path: '/',
+  // domain: '*',
+};
 
 @Controller(`${ApiPrefix.V1}/auth`)
 export class AuthController {
@@ -34,11 +49,8 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<Partial<Tokens>> {
     const tokens = await this.authService.registerLocal(registerUserDto);
-    res.cookie('jwt', tokens.refresh_token, {
-      httpOnly: true,
-      // TODO: Maybe 1000 is not needed if it's in seconds and not in ms
-      maxAge: JwtMaxAge.Refresh * 1000,
-    });
+    // TODO: Move 'jwt' cookie name to constants
+    res.cookie('jwt', tokens.refresh_token, HTTP_ONLY_COOKIE_CONF);
 
     return {
       access_token: tokens.access_token,
@@ -55,11 +67,7 @@ export class AuthController {
   ): Promise<Partial<Tokens>> {
     const tokens = await this.authService.signinLocal(loginUserDto);
     // TODO: Maybe create a helper to store a cookie
-    res.cookie('jwt', tokens.refresh_token, {
-      httpOnly: true,
-      // TODO: Maybe 1000 is not needed if it's in seconds and not in ms
-      maxAge: JwtMaxAge.Refresh * 1000,
-    });
+    res.cookie('jwt', tokens.refresh_token, HTTP_ONLY_COOKIE_CONF);
 
     return {
       access_token: tokens.access_token,
@@ -69,7 +77,7 @@ export class AuthController {
   // TODO: should clear cookie as well
   // res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
   // and send correct status: 204?;
-
+  // TODO: Clear cookie here as well
   // It expects: authorization: Bearer access_token (check for Authorization and authorization)
   @Get('local/logout')
   @HttpCode(HttpStatus.OK)
@@ -78,17 +86,19 @@ export class AuthController {
   }
 
   // TODO: Test tokens with less time to verify they expire
-  // TODO: Make this route Get()
+  // TODO: Make this route Get(), and read the token from the cookie
   @Public()
-  @UseGuards(RtGuard)
-  @Post('local/refresh')
+  // @UseGuards(RtGuard)
   @HttpCode(HttpStatus.OK)
-  refreshTokens(
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('refreshToken') refreshToken: string,
-  ) {
+  @Get('local/refresh')
+  refreshTokens(@Cookies('jwt') refreshToken: string) {
+    console.log(
+      '========================REFRESH TOKEN AUTH CONTROLLER =============================',
+      refreshToken,
+    );
+
     // TODO: store refresh in cookie and return only access
-    return this.authService.refreshTokens(userId, refreshToken);
+    return this.authService.refreshTokens(refreshToken);
   }
 
   @Post('request-password-reset-link')

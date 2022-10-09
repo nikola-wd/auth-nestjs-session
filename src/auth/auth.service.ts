@@ -132,17 +132,46 @@ export class AuthService {
   }
 
   // TODO: don't return access_token, store it to http only cookie instead (do the same in register and signin), return only refresh token
-  async refreshTokens(userId: number, rt: string) {
-    const user = await this.prisma.user.findUnique({
+  async refreshTokens(rt: string) {
+    // TODO: is this token signed, research, and sign if not and if that is needed
+    // TODO: Also check if token is valid, maybe trat's done in the rt strategy validate method
+    const decoded_rt = this.jwtService.decode(rt);
+
+    if (!decoded_rt) throw new ForbiddenException('Access Denied');
+
+    const { sub: userId } = decoded_rt;
+
+    console.log(
+      '))))))))))))DECODED RT)))))))))))))))))))))))))))))',
+      decoded_rt,
+    );
+    console.log(
+      '))))))))))))DECODED RT userId)))))))))))))))))))))))))))))',
+      userId,
+    );
+
+    console.log(
+      '________________________AUTH SERVICE REFRESH: RT_____________________: ',
+      rt,
+    );
+
+    const user = await this.prisma.user.findFirst({
       where: {
+        // hashRt: rt,
         id: userId,
       },
     });
 
+    console.log(
+      '******************************USER**********************',
+      user,
+    );
+
+    // let user = null;
+
     if (!user || !user.hashRt) throw new ForbiddenException('Access Denied');
 
-    // TODO: Maybe rt should not be hashed, it should compare with jwt instead
-    /// jwt.compare
+    // TODO: Maybe return only access_token and not RT
     const rtMatches = await bcrypt.compare(rt, user.hashRt);
 
     if (!rtMatches) throw new ForbiddenException('Access Denied');

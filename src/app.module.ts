@@ -6,9 +6,18 @@ import { AuthModule } from './auth/auth.module';
 import { AtGuard } from './common/guards';
 import { PrismaModule } from './prisma/prisma.module';
 import { PostsModule } from './posts/posts.module';
+import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
-  imports: [AuthModule, PrismaModule, PostsModule],
+  imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client', 'build'),
+    }),
+    AuthModule,
+    PrismaModule,
+    PostsModule,
+  ],
   controllers: [AppController],
   providers: [
     {

@@ -5,7 +5,12 @@ import { AuthService } from './auth.service';
 import { AtStrategy, RtStrategy } from './strategies';
 
 @Module({
-  imports: [JwtModule.register({})],
+  imports: [
+    // JwtModule.register({
+    //   secret: process.env.REFRESH_TOKEN_SECRET,
+    // }),
+    JwtModule.register({}),
+  ],
   controllers: [AuthController],
   providers: [AuthService, AtStrategy, RtStrategy],
 })
