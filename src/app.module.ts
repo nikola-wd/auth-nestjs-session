@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -14,11 +19,10 @@ import {
 
 @Module({
   imports: [
-    // ServeStaticModule.forRoot({
-    //   rootPath: join(__dirname, '..', 'client', 'build'),
-    //   renderPath: '/',
-    //   exclude: ['/api*'],
-    // } as ServeStaticModuleOptions),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client', 'build'),
+      exclude: ['api/*'],
+    } as ServeStaticModuleOptions),
     AuthModule,
     PrismaModule,
     PostsModule,

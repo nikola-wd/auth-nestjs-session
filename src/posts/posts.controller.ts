@@ -1,7 +1,5 @@
-import { Controller, HttpCode, HttpStatus, Get, Req } from '@nestjs/common';
-import { Request } from 'express';
+import { Controller, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { GetCurrentUserId, Public } from 'src/common/decorators';
-import { Cookies } from 'src/common/decorators/cookies.decorator';
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
 import { PostsService } from './posts.service';
 
@@ -16,23 +14,12 @@ export class PostsController {
     return this.postsService.getAllPosts();
   }
 
-  // getPostsByUserID(@GetCurrentUserId() userId: number) {
-  //   console.log('___________________getPostsByUserID: userID: ', userId);
-
-  //   return ['yooo'];
-  //   return {
-  //     posts: [],
-  //     userId,
-  //   };
-  // }
-
-  @Get('yo')
-  @Public()
+  @Get('by-user-id')
   @HttpCode(HttpStatus.OK)
-  getPostsById(@Req() req: Request) {
+  getPostsByUserId(@GetCurrentUserId() userId: number) {
     console.log('YOOOOOOOOOOOOOOOOOOOOOOOO');
-    console.log(req);
+    console.log(userId);
 
-    return ['yoooo'];
+    return [userId];
   }
 }
