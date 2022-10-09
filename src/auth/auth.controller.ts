@@ -88,7 +88,7 @@ export class AuthController {
   // TODO: Test tokens with less time to verify they expire
   // TODO: Make this route Get(), and read the token from the cookie
   @Public()
-  // @UseGuards(RtGuard)
+  @UseGuards(RtGuard)
   @HttpCode(HttpStatus.OK)
   @Get('local/refresh')
   refreshTokens(@Cookies('jwt') refreshToken: string) {
@@ -101,6 +101,7 @@ export class AuthController {
     return this.authService.refreshTokens(refreshToken);
   }
 
+  // TODO: Implement
   @Post('request-password-reset-link')
   requestPasswordResetLink(
     @Body() passwordResetLinkRequest: PasswordResetLinkRequestDto,

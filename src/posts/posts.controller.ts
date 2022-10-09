@@ -17,9 +17,6 @@ export class PostsController {
   @Get('by-user-id')
   @HttpCode(HttpStatus.OK)
   getPostsByUserId(@GetCurrentUserId() userId: number) {
-    console.log('YOOOOOOOOOOOOOOOOOOOOOOOO');
-    console.log(userId);
-
-    return [userId];
+    return this.postsService.getPostsByUserId(userId);
   }
 }

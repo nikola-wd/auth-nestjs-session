@@ -6,8 +6,8 @@ export class PostsService {
   constructor(private prisma: PrismaService) {}
 
   // TODO: case where there are no posts or there is an error
-  getAllPosts() {
-    const posts = this.prisma.post.findMany({
+  async getAllPosts() {
+    const posts = await this.prisma.post.findMany({
       include: {
         user: {
           select: {
@@ -20,5 +20,25 @@ export class PostsService {
     });
 
     return posts;
+  }
+
+  getPostsByUserId(userId: number) {
+    const postsByUserId = this.prisma.post.findMany({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        slug: true,
+        title: true,
+      },
+    });
+
+    return postsByUserId;
   }
 }
