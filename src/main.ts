@@ -29,7 +29,11 @@ async function bootstrap() {
   // app.use(cookieParser(process.env.REFRESH_TOKEN_SECRET));
 
   // app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
   await app.listen(3001);
 }
 bootstrap();

@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UpdatePostDto } from './dtos';
 
 @Injectable()
 export class PostsService {
@@ -22,12 +27,15 @@ export class PostsService {
     return posts;
   }
 
+  // TODO: Maybe selects are not needed since we are fetching all data
+
   async getSinglePostBySlug(slug: string) {
     const post = await this.prisma.post.findUnique({
       where: {
         slug,
       },
       select: {
+        id: true,
         createdAt: true,
         updatedAt: true,
         slug: true,
@@ -37,6 +45,20 @@ export class PostsService {
     });
 
     if (!post) throw new NotFoundException();
+    return post;
+  }
+
+  async getSinglePostById(postId: number) {
+    const post = await this.prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+
+    if (!post) throw new NotFoundException();
+
+    delete post.userId;
+
     return post;
   }
 
@@ -59,4 +81,37 @@ export class PostsService {
 
     return postsByUserId;
   }
+
+  // TODO: For both don't accept createdAt, and updatedAt, those should be updated from the backend
+  async updateSinglePost(
+    postId: number,
+    userId: number,
+    postNewData: UpdatePostDto,
+  ) {
+    const foundPost = await this.prisma.post.findFirst({
+      where: {
+        id: postId,
+      },
+    });
+
+    if (!foundPost) throw new ForbiddenException();
+    if (userId !== foundPost.userId) throw new ForbiddenException();
+
+    const updatedPost = await this.prisma.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        ...postNewData,
+        updatedAt: new Date(),
+      },
+    });
+
+    delete updatedPost.userId;
+
+    return updatedPost;
+  }
+
+  // TODO: create post POST route, with 201 response
+  // TODO create post
 }

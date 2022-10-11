@@ -3,3 +3,4 @@
 [] Implement refresh token rotation
 [] Implement multiple login (from different devices). refresh token array
 [] Maybe implement rate limiter
+[] Implement a loger
