@@ -59,7 +59,7 @@ export class AuthService {
     // Hash the password
     const hash = await this.hashData(dto.password);
 
-    // Create user (if email or username already exist, throw Exreption)
+    // Create user (if email or username already exist, throw Exception)
     const newUser = await this.prisma.user.create({
       data: {
         email: dto.email,

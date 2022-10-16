@@ -2,9 +2,11 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UpdatePostDto } from './dtos';
+import { CreatePostDto, UpdatePostDto } from './dtos';
 
 @Injectable()
 export class PostsService {
@@ -25,6 +27,43 @@ export class PostsService {
     });
 
     return posts;
+  }
+
+  async createPost(userId: number, dto: CreatePostDto) {
+    console.log('userId: ', userId);
+    console.log('createPostDto: ', dto);
+
+    // const postWithSameSlug = await this.prisma.post.findFirst({
+    //   where: {
+    //     slug: dto.slug,
+    //   },
+    // });
+
+    // if (postWithSameSlug) {
+    //   throw new ConflictException(
+    //     'Slug already taken. Please choose another one.',
+    //   );
+    // }
+
+    try {
+      await this.prisma.post.create({
+        data: {
+          slug: dto.slug,
+          title: dto.title,
+          content: dto.content,
+          userId,
+        },
+      });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'Slug already taken. Please choose another one.',
+        );
+      }
+    }
   }
 
   // TODO: Maybe selects are not needed since we are fetching all data
@@ -48,7 +87,7 @@ export class PostsService {
     return post;
   }
 
-  async getSinglePostById(postId: number) {
+  async getSinglePostById(postId: number, userId: number) {
     const post = await this.prisma.post.findUnique({
       where: {
         id: postId,
@@ -56,6 +95,7 @@ export class PostsService {
     });
 
     if (!post) throw new NotFoundException();
+    if (post.userId !== userId) throw new ForbiddenException();
 
     delete post.userId;
 
@@ -114,4 +154,5 @@ export class PostsService {
 
   // TODO: create post POST route, with 201 response
   // TODO create post
+  // TODO delete post
 }
