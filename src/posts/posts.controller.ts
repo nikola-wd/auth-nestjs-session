@@ -8,6 +8,7 @@ import {
   Put,
   Body,
   Post,
+  Delete,
 } from '@nestjs/common';
 import { GetCurrentUserId, Public } from 'src/common/decorators';
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
@@ -26,7 +27,7 @@ export class PostsController {
   }
 
   //CREATE SINGLE POST
-  @Post('by-id')
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   createPost(
     @GetCurrentUserId() userId: number,
@@ -59,6 +60,16 @@ export class PostsController {
   ) {
     console.log(updatePostDto);
     return this.postsService.updateSinglePost(postId, userId, updatePostDto);
+  }
+
+  // DELETE SINGLE POST BY ID
+  @Delete('by-id/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteSinglePost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.postsService.deleteSinglePost(postId, userId);
   }
 
   // GET ALL POSTS USER_ID

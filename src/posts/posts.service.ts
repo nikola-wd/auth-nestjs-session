@@ -33,18 +33,6 @@ export class PostsService {
     console.log('userId: ', userId);
     console.log('createPostDto: ', dto);
 
-    // const postWithSameSlug = await this.prisma.post.findFirst({
-    //   where: {
-    //     slug: dto.slug,
-    //   },
-    // });
-
-    // if (postWithSameSlug) {
-    //   throw new ConflictException(
-    //     'Slug already taken. Please choose another one.',
-    //   );
-    // }
-
     try {
       await this.prisma.post.create({
         data: {
@@ -152,7 +140,22 @@ export class PostsService {
     return updatedPost;
   }
 
-  // TODO: create post POST route, with 201 response
-  // TODO create post
-  // TODO delete post
+  async deleteSinglePost(postId: number, userId: number) {
+    const foundPost = await this.prisma.post.findFirst({
+      where: {
+        id: postId,
+      },
+    });
+
+    if (!foundPost) throw new ForbiddenException();
+    if (userId !== foundPost.userId) throw new ForbiddenException();
+
+    await this.prisma.post.delete({
+      where: {
+        id: postId,
+      },
+    });
+  }
+
+  // TODO: update, allow slug update as well if not taken already
 }
