@@ -148,7 +148,8 @@ export class PostsService {
     });
 
     if (!foundPost) throw new ForbiddenException();
-    if (userId !== foundPost.userId) throw new ForbiddenException();
+    if (userId !== foundPost.userId)
+      throw new ForbiddenException("Forbidden. Can't delete");
 
     await this.prisma.post.delete({
       where: {

@@ -16,7 +16,7 @@ import {
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client', 'build'),
-      exclude: ['api/*'],
+      exclude: ['/api*'],
     } as ServeStaticModuleOptions),
     AuthModule,
     PrismaModule,
