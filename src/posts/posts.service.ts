@@ -15,6 +15,9 @@ export class PostsService {
   // TODO: case where there are no posts or there is an error
   async getAllPosts() {
     const posts = await this.prisma.post.findMany({
+      orderBy: {
+        updatedAt: 'desc',
+      },
       include: {
         user: {
           select: {
@@ -96,6 +99,9 @@ export class PostsService {
         user: {
           id: userId,
         },
+      },
+      orderBy: {
+        updatedAt: 'desc',
       },
 
       select: {
