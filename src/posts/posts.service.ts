@@ -116,7 +116,6 @@ export class PostsService {
     return postsByUserId;
   }
 
-  // TODO: For both don't accept createdAt, and updatedAt, those should be updated from the backend
   async updateSinglePost(
     postId: number,
     userId: number,

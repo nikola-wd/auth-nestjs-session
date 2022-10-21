@@ -118,6 +118,11 @@ export class AuthService {
     console.log('Logging outttt');
     console.log(userId);
 
+    // TODO: Delete cookie here. Should probably need access token sent. What happens if the the ac and rt expired?
+    // Maybe even on the refresh route, if refresh token expired, just remove the cookie there as well
+    // But, if we don't get the userId here we can do nothing, we can figure out who the user is. So maybre remoing the token on trying to refresh,
+    // is the right choice appart from here
+
     await this.prisma.user.updateMany({
       where: {
         id: userId,

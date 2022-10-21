@@ -7,7 +7,6 @@ import {
   UseGuards,
   Res,
   Get,
-  Req,
 } from '@nestjs/common';
 
 import { ApiPrefix } from 'src/utils/enums/ApiPrefixes';
@@ -79,7 +78,7 @@ export class AuthController {
   // and send correct status: 204?;
   // TODO: Clear cookie here as well
   // It expects: authorization: Bearer access_token (check for Authorization and authorization)
-  @Get('local/logout')
+  @Post('local/logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUserId() userId: number) {
     this.authService.logout(userId);
