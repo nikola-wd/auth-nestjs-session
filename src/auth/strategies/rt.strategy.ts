@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Request, Request as RequestType } from 'express';
+import { Request } from 'express';
 
 // TODO: Maybe we need to check if token is valid and compare to the DB one here
 @Injectable()
